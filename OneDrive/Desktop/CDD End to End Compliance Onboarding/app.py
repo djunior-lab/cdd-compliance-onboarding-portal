@@ -10,7 +10,7 @@ engine = create_engine(DB_CONNECTION_STRING)
 st.set_page_config(page_title="Client Onboarding Portal | FICA Compliance", layout="centered")
 
 st.title("Client Due Diligence (CDD) Intake Portal")
-st.write("Please complete the required compliance questionnaire below to initiate your entity onboarding process.")
+st.write("Please complete the required compliance questionnaire below to initiate your onboarding process.")
 
 # Master Selection for Dynamic Conditional Rendering
 client_category = st.selectbox(
