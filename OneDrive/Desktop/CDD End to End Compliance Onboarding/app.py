@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 import datetime
 
 # Database Connection
-DB_CONNECTION_STRING = "sqlite:///compliance_onboarding.db" 
+DB_CONNECTION_STRING = "postgresql://postgres:[OdpY6rYFlxez1KTI]@db.[CDD Onboarding System].supabase.co:5432/postgres"
 engine = create_engine(DB_CONNECTION_STRING)
 
 st.set_page_config(page_title="FICA CDD & Compliance Operations Portal", layout="wide")
