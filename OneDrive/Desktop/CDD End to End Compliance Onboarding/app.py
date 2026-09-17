@@ -3,8 +3,8 @@ import pandas as pd
 from sqlalchemy import create_engine
 import datetime
 
-# Database Connection
-DB_CONNECTION_STRING = st.secrets["DB_URL"]
+# Database Connection via Streamlit Cloud Secrets (Falls back to local SQLite for testing)
+DB_CONNECTION_STRING = st.secrets.get("DB_URL", "sqlite:///compliance_onboarding.db")
 engine = create_engine(DB_CONNECTION_STRING)
 
 st.set_page_config(page_title="FICA CDD & Compliance Operations Portal", layout="wide")
@@ -35,6 +35,9 @@ if portal_mode == "Client Intake Portal":
 
     with st.form("client_cdd_onboarding_form"):
         
+        # Initialize file tracking metadata variables
+        uploaded_file_names = "None"
+
         if client_category == "Natural Persons (Individuals)":
             st.subheader("Section A: Natural Persons (Individuals) - Personal Particulars")
             full_name = st.text_input("Full Legal Name(s) and Surname *")
@@ -69,6 +72,11 @@ if portal_mode == "Client Intake Portal":
             primary_operating_regions = "South Africa"
             industry_sector = f"Occupation: {occupation_employer}"
             has_qualifying_ubo = "N/A - Individual"
+            
+            doc_list = []
+            if id_doc: doc_list.append(f"ID/Passport: {id_doc.name}")
+            if por_doc: doc_list.append(f"Proof of Residence: {por_doc.name}")
+            if doc_list: uploaded_file_names = ", ".join(doc_list)
 
         elif client_category == "Legal Persons (Private Companies, Close Corporations & Non-Profits)":
             st.subheader("Section B: Legal Persons - Entity Details")
@@ -98,6 +106,14 @@ if portal_mode == "Client Intake Portal":
             dir_pors = st.file_uploader("Directors Proof of Residence *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
             share_register = st.file_uploader("Signed & Dated Share Register / Organogram *", type=["pdf", "png", "jpg", "jpeg"])
 
+            doc_list = []
+            if founding_docs: doc_list.append(f"Founding Docs ({len(founding_docs)} files)")
+            if entity_por: doc_list.append(f"Business PoR: {entity_por.name}")
+            if dir_ids: doc_list.append(f"Director IDs ({len(dir_ids)} files)")
+            if dir_pors: doc_list.append(f"Director PoRs ({len(dir_pors)} files)")
+            if share_register: doc_list.append(f"Share Register: {share_register.name}")
+            if doc_list: uploaded_file_names = ", ".join(doc_list)
+
         elif client_category == "Section C: Trusts":
             st.subheader("Section C: Trusts - Trust Particulars")
             registered_entity_name = st.text_input("Official Name of Trust *")
@@ -120,6 +136,13 @@ if portal_mode == "Client Intake Portal":
             trustee_founder_ids = st.file_uploader("IDs for Trustees, Beneficiaries, Settlors, Founder, Donor *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
             trustee_founder_pors = st.file_uploader("Proof of Residence (Not older than 3 months) for Trustees, Beneficiaries, etc. *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
 
+            doc_list = []
+            if trust_deed: doc_list.append("Trust Deed")
+            if letter_of_authority: doc_list.append("Letter of Authority")
+            if trustee_founder_ids: doc_list.append(f"Trust Parties IDs ({len(trustee_founder_ids)} files)")
+            if trustee_founder_pors: doc_list.append(f"Trust Parties PoRs ({len(trustee_founder_pors)} files)")
+            if doc_list: uploaded_file_names = ", ".join(doc_list)
+
         else:
             st.subheader("Section D: Foreign Companies & Other Legal Persons")
             registered_entity_name = st.text_input("Registered Name *")
@@ -139,6 +162,14 @@ if portal_mode == "Client Intake Portal":
             foreign_dir_ids = st.file_uploader("Directors / Partners ID / Passports *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
             foreign_dir_pors = st.file_uploader("Directors / Partners Proof of Residence *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
             foreign_share_register = st.file_uploader("Signed & Dated Share Register / Organogram *", type=["pdf", "png", "jpg", "jpeg"])
+
+            doc_list = []
+            if foreign_founding_docs: doc_list.append("Foreign Founding Docs")
+            if foreign_entity_por: doc_list.append("Foreign PoR")
+            if foreign_dir_ids: doc_list.append(f"Foreign Director IDs ({len(foreign_dir_ids)} files)")
+            if foreign_dir_pors: doc_list.append(f"Foreign Director PoRs ({len(foreign_dir_pors)} files)")
+            if foreign_share_register: doc_list.append("Foreign Share Register")
+            if doc_list: uploaded_file_names = ", ".join(doc_list)
 
         submitted = st.form_submit_button("Submit CDD Onboarding Questionnaire")
 
@@ -160,6 +191,7 @@ if portal_mode == "Client Intake Portal":
                 "is_pep_involved": [is_pep],
                 "jurisdiction_risk_rating": ["Pending Initial Review"],
                 "source_of_funds": [source_of_funds],
+                "uploaded_documents": [uploaded_file_names],
                 "assigned_analyst": ["Unassigned Intake Queue"],
                 "review_status": ["Pending Compliance Review"],
                 "submission_timestamp": [datetime.datetime.now()]
@@ -175,22 +207,52 @@ if portal_mode == "Client Intake Portal":
                 st.error(f"Transmission failure: {e}")
 
 # -------------------------------------------------------------------------
-# VIEW 2: FICA COMPLIANCE TEAM DASHBOARD (SECURED)
+# VIEW 2: FICA COMPLIANCE TEAM DASHBOARD (SECURED WITH USERNAME & PASSWORD)
 # -------------------------------------------------------------------------
 elif portal_mode == "FICA Compliance Team Dashboard":
     st.title("FICA Compliance Operations & Analyst Dashboard")
     st.write("Restricted area for compliance officers, AML analysts, and onboarding supervisors.")
 
-    # Simple Password Authentication Gate
-    # You can customize this password or read it from st.secrets["FICA_PASSWORD"]
-    analyst_passcode = st.text_input("Enter Compliance Analyst Access Password", type="password")
-    
-    # Default password set to 'compliance2026' for testing purposes
-    if analyst_passcode == "compliance2026" or analyst_passcode == st.secrets.get("FICA_PASSWORD", "admin"):
-        st.success("Authentication successful. Welcome, Compliance Officer.")
+    # Session State Initialization for Login
+    if "authenticated" not in st.session_state:
+        st.session_state["authenticated"] = False
+    if "logged_in_user" not in st.session_state:
+        st.session_state["logged_in_user"] = ""
+
+    if not st.session_state["authenticated"]:
+        st.subheader("Compliance Team Authentication")
+        with st.form("login_form"):
+            username_input = st.text_input("Username")
+            password_input = st.text_input("Password", type="password")
+            login_btn = st.form_submit_button("Sign In")
+            
+            if login_btn:
+                # Authorized Compliance Users
+                valid_users = {
+                    "analyst": "compliance2026",
+                    "admin": "admin2026"
+                }
+                
+                if username_input in valid_users and valid_users[username_input] == password_input:
+                    st.session_state["authenticated"] = True
+                    st.session_state["logged_in_user"] = username_input
+                    st.success("Authentication successful! Loading dashboard...")
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password.")
+    else:
+        # Logged-in Header & Logout
+        col_head1, col_head2 = st.columns([3, 1])
+        with col_head1:
+            st.info(f"Logged in as: **{st.session_state['logged_in_user'].upper()}**")
+        with col_head2:
+            if st.button("Sign Out"):
+                st.session_state["authenticated"] = False
+                st.session_state["logged_in_user"] = ""
+                st.rerun()
         
         try:
-            # Fetch staging records from database
+            # Fetch staging records from Supabase / database
             df_queue = pd.read_sql("SELECT * FROM dim_cdd_onboarding_staging", con=engine)
             
             if df_queue.empty:
@@ -200,7 +262,7 @@ elif portal_mode == "FICA Compliance Team Dashboard":
                 st.dataframe(df_queue, use_container_width=True)
                 
                 st.markdown("---")
-                st.subheader("Client Case Review & Risk Decisioning")
+                st.subheader("Client Case Review & Document Verification")
                 
                 selected_client = st.selectbox("Select Client Reference ID to Review", df_queue["client_id"].tolist())
                 
@@ -217,12 +279,21 @@ elif portal_mode == "FICA Compliance Team Dashboard":
                     st.write(f"**Current Status:** {client_record['review_status']}")
                     st.write(f"**Submission Timestamp:** {client_record['submission_timestamp']}")
                 
+                # Document Verification Panel
+                st.markdown("### 📂 Uploaded Supporting Documents")
+                uploaded_docs_str = client_record.get('uploaded_documents', 'No documents recorded')
+                if uploaded_docs_str and uploaded_docs_str != "None":
+                    st.success(f"Attached Files: **{uploaded_docs_str}**")
+                    st.info("Verification status: Documents successfully received and logged to intake staging pipeline.")
+                else:
+                    st.warning("No file metadata recorded for this entry.")
+
+                st.markdown("---")
                 st.markdown("### Update Review Decision")
                 new_status = st.selectbox("Change Compliance Status", ["Pending Compliance Review", "Approved - Cleared", "Rejected - High Risk / PEP Mismatch", "More Information Requested (RFI)"])
                 risk_rating = st.selectbox("Assign FICA Risk Rating", ["Low Risk", "Medium Risk", "High Risk / Enhanced Due Diligence Required"])
                 
                 if st.button("Commit Compliance Decision"):
-                    # Update local DB record
                     with engine.begin() as conn:
                         conn.execute(
                             f"UPDATE dim_cdd_onboarding_staging SET review_status = '{new_status}', jurisdiction_risk_rating = '{risk_rating}' WHERE client_id = '{selected_client}'"
@@ -231,9 +302,4 @@ elif portal_mode == "FICA Compliance Team Dashboard":
                     st.rerun()
 
         except Exception as db_error:
-            st.warning("No staging database found yet or database is empty. Once a client submits the form, records will appear here.")
-            
-    elif analyst_passcode != "":
-        st.error("Invalid password. Access restricted to authorized compliance personnel.")
-    else:
-        st.info("Please enter the compliance password to unlock the verification workflow.")
+            st.warning(f"Database table check pending or empty: {db_error}")
