@@ -43,7 +43,24 @@ if portal_mode == "Client Intake Portal":
             full_name = st.text_input("Full Legal Name(s) and Surname *")
             dob = st.date_input("Date of Birth *", value=datetime.date(1990, 1, 1), min_value=datetime.date(1900, 1, 1), max_value=datetime.date.today())
             id_number = st.text_input("SA Identity Number (or Foreign Passport Number if non-resident) *")
-            nationality = st.text_input("Nationality / Country of Residence *")
+            nationality = st.multiselect("Nationality", ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", 
+                                                     "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", 
+                                                     "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+                                                       "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", 
+                                                       "Côte d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", 
+                                                       "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", 
+                                                       "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", 
+                                                       "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", 
+                                                       "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", 
+                                                       "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", 
+                                                       "Mauritania", "Mauritius", "Mexico", "Micronesia", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", 
+                                                       "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", 
+                                                       "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", 
+                                                       "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", 
+                                                       "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", 
+                                                       "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", 
+                                                       "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", 
+                                                       "Vietnam", "Yemen", "Zambia", "Zimbabwe"])
             
             st.subheader("2. Contact & Address Details")
             residential_address = st.text_area("Residential Address (Main place of domicile) *")
@@ -144,9 +161,26 @@ if portal_mode == "Client Intake Portal":
             if doc_list: uploaded_file_names = ", ".join(doc_list)
 
         else:
-            st.subheader("Section D: Foreign Companies & Other Legal Persons")
+            st.subheader("Foreign Companies & Other Legal Persons")
             registered_entity_name = st.text_input("Registered Name *")
-            country_of_incorporation = st.text_input("Country of Incorporation *")
+            country_of_incorporation = st.multiselect("Country", ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", 
+                                                     "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", 
+                                                     "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+                                                       "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", 
+                                                       "Côte d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", 
+                                                       "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", 
+                                                       "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", 
+                                                       "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", 
+                                                       "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", 
+                                                       "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", 
+                                                       "Mauritania", "Mauritius", "Mexico", "Micronesia", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", 
+                                                       "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", 
+                                                       "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", 
+                                                       "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", 
+                                                       "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", 
+                                                       "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", 
+                                                       "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", 
+                                                       "Vietnam", "Yemen", "Zambia", "Zimbabwe"])
             registration_number = st.text_input("Foreign Registration / Identification Number *")
             
             entity_type = st.selectbox("Entity Classification", ["Foreign Incorporated Company", "Business Partnership", "Other Foreign Entity"])
@@ -159,8 +193,8 @@ if portal_mode == "Client Intake Portal":
             st.subheader("3. Mandatory Document Uploads")
             foreign_founding_docs = st.file_uploader("Founding Documents (Foreign Registration, Constitution) *", type=["pdf", "zip"], accept_multiple_files=True)
             foreign_entity_por = st.file_uploader("Proof of Foreign Business Address (Not older than 3 months) *", type=["pdf", "png", "jpg", "jpeg"])
-            foreign_dir_ids = st.file_uploader("Directors / Partners ID / Passports *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
-            foreign_dir_pors = st.file_uploader("Directors / Partners Proof of Residence *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
+            foreign_dir_ids = st.file_uploader("Directors / Partners Passports *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
+            foreign_dir_pors = st.file_uploader("Directors / Partners Proof of Residence (Not older than 3 months)*", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
             foreign_share_register = st.file_uploader("Signed & Dated Share Register / Organogram *", type=["pdf", "png", "jpg", "jpeg"])
 
             doc_list = []
