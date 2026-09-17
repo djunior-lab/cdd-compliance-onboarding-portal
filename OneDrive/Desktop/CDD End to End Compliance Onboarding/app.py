@@ -26,7 +26,7 @@ if portal_mode == "Client Intake Portal":
     client_category = st.selectbox(
         "Select Client Classification Type *",
         [
-            "Natural Persons (Individuals)", 
+            "Natural Persons", 
             "Legal Persons (Private Companies, Close Corporations & Non-Profits)", 
             "Trusts", 
             "Foreign Companies & Other Legal Persons (Partnerships / Foreign Entities)"
@@ -38,8 +38,8 @@ if portal_mode == "Client Intake Portal":
         # Initialize file tracking metadata variables
         uploaded_file_names = "None"
 
-        if client_category == "Natural Persons (Individuals)":
-            st.subheader("Section A: Natural Persons (Individuals) - Personal Particulars")
+        if client_category == "Natural Persons":
+            st.subheader("Section A: Personal Particulars")
             full_name = st.text_input("Full Legal Name(s) and Surname *")
             dob = st.date_input("Date of Birth *", value=datetime.date(1990, 1, 1), min_value=datetime.date(1900, 1, 1), max_value=datetime.date.today())
             id_number = st.text_input("SA Identity Number (or Foreign Passport Number if non-resident) *")
@@ -79,10 +79,10 @@ if portal_mode == "Client Intake Portal":
             if doc_list: uploaded_file_names = ", ".join(doc_list)
 
         elif client_category == "Legal Persons (Private Companies, Close Corporations & Non-Profits)":
-            st.subheader("Section B: Legal Persons - Entity Details")
+            st.subheader("Section A: Entity Details")
             registered_entity_name = st.text_input("Registered Entity Name *")
             registration_number = st.text_input("Registration Number *")
-            registered_address = st.text_area("Registered / Business Address *")
+            registered_address = st.text_area("Operating Address *")
             tax_vat_number = st.text_input("Tax / VAT Registration Number")
             
             entity_type = st.selectbox(
@@ -101,9 +101,9 @@ if portal_mode == "Client Intake Portal":
 
             st.subheader("3. Mandatory Document Uploads")
             founding_docs = st.file_uploader("Founding Documents (CIPC Registration, Constitution, etc.) *", type=["pdf", "zip"], accept_multiple_files=True)
-            entity_por = st.file_uploader("Proof of Business Address (Not older than 3 months) *", type=["pdf", "png", "jpg", "jpeg"])
+            entity_por = st.file_uploader("Proof of Operating Address (Not older than 3 months) *", type=["pdf", "png", "jpg", "jpeg"])
             dir_ids = st.file_uploader("Directors ID / Passports *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
-            dir_pors = st.file_uploader("Directors Proof of Residence *", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
+            dir_pors = st.file_uploader("Directors Proof of Residence (Not older than 3 months)*", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True)
             share_register = st.file_uploader("Signed & Dated Share Register / Organogram *", type=["pdf", "png", "jpg", "jpeg"])
 
             doc_list = []
@@ -114,13 +114,13 @@ if portal_mode == "Client Intake Portal":
             if share_register: doc_list.append(f"Share Register: {share_register.name}")
             if doc_list: uploaded_file_names = ", ".join(doc_list)
 
-        elif client_category == "Section C: Trusts":
-            st.subheader("Section C: Trusts - Trust Particulars")
-            registered_entity_name = st.text_input("Official Name of Trust *")
+        elif client_category == "Section A: Trusts":
+            st.subheader("Section A: Trust Particulars")
+            registered_entity_name = st.text_input("Name of Trust *")
             registration_number = st.text_input("Master’s Office Reference Number (IT Number) *")
             
             st.subheader("2. Controlling Parties")
-            controlling_parties = st.text_area("Founders, Trustees, and Named Beneficiaries (Full Names & Details) *")
+            controlling_parties = st.text_area("Founders, Trustees, and Named Beneficiaries (Full Names) *")
             
             entity_type = "Corporate Trust"
             country_of_incorporation = "South Africa"
